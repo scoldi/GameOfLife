@@ -1,21 +1,41 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="styles.css">
-		<script type="text/javascript" src="addFields.js"></script>
-		<script type="text/javascript" src="setAlive.js"></script>
-		<!-- <script type="text/javascript" src="startSequence.js"></script> -->
+		<script type="text/javascript" src="func.js"></script>
+		<script type="text/javascript" src="styles.js"></script>
 	</head>
-	<body>
-	<header><h1>GoL v0</h1></header>
+	<body onload = "addFields(10, 10)">
+	<div id="wrapper">
+		<div id="main_grid">
+			<div id="form">
+			<div class="img_holder" onclick="openSettings()"><img src="img/settings.png" class="image_off" height="30px"><img src="img/settings_hover.png" class="image_on" height="30px"></div>
+			<div class="img_holder" onclick=""><img src="img/play.png" class="image_off" height="100px" ><img src="img/play_hover.png" class="image_on" height="100px"></div>
+			<div class="img_holder" onclick=""><img src="img/info.png" class="image_off" height="35px"><img src="img/info_hover.png" class="image_on" height="35px"></div>
+				<form>  					
+					<input type="button" value="Get Neighbors" onclick="getNeighbors()"  /> 
+					<input type="button" value="Next Step" onclick="nextStep()"  /> 
+					<div id="modalSettings" class="modal">
+						<div class="modal-content">
+							<span class="close" id="closeSettings" onclick="closeSettings()">&times;</span>
+							<span class="modalText">Settings</span>
+							</br></br>
+							<form id = "settingsForm">
+								<input type="text" class="textbox" id="input_x" placeholder="Grid width"> </br>
+								<input type="text" class="textbox" id="input_y" placeholder="Grid height"> </br>
+								<input type="text" class="textbox" id="input_ticktime" placeholder="Step interval"> </br>
+								<button type="button" id="gennew_button" onclick="clearAdd()" class="button" >New grid</button>
+								<button type="button" id="fillrandom_button" onclick="fillrandom()" class="button" >Fill randomly</button>
+							</form>
+						</div>
+					</div>
+				</form>  
+			</div>
+			<div id="infobar"></div>
+			<div id="center_grid"></div>
+		</div>
+		<div id="footer">
+
+		</div>
 	</div>
-	<div id="main_grid">
-	<form>  
-		<input type="button" value="GenerateTiles" onclick="genDivs(36, 10)"  />  
-		<input type="button" value="Unlock" onclick="init()"  /> 
-		<input type="button" value="Get Neighbors" onclick="getNeighbors()"  /> 
-		<input type="button" value="Next Step" onclick="nextStep()"  /> 
-	</form>  
-	</div>
-	<div id="footer">
 	</body>
 </html>
