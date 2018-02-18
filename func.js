@@ -1,54 +1,58 @@
-// Включение мертвой клетки
-function setAlive(event)
-{
-	const FieldClicked = this;
-    FieldClicked.classList.add('alive');
-}
+/*
+TO DO LIST  
+1. Change size of everything on window resize (without interrupting anything);
+*/
+var out_flag = false;
+var refreshInterval;
+var interval = 1000;
+var customTickTime = false;
 
-// Отключение живой клетки (пока не используется)
-function setDead(event)
+// Dead tile => alive
+function toggleTile(event)
 {
-	const FieldClicked = this;
-	if (FieldClicked.classList.contains('alive')){		
-    FieldClicked.classList.remove('alive');
+	const tileClicked = this;
+	if (tileClicked.classList.contains('alive'))
+	{		
+    tileClicked.classList.remove('alive');
+	}
+	else {
+    tileClicked.classList.add('alive');
 	}
 }
 
-// Включаем клетки
+// Allow manual on/off
 function init(){
-	const fields = Array.from(document.querySelectorAll('.gridsquare'));
-	fields.forEach(
-		field => {
-		field.addEventListener('click', setAlive);
-		//field.addEventListener('click', getNeighborsOne(event.target));
-		//field.addEventListener('click', setDead);
+	const tiles = Array.from(document.querySelectorAll('.gridsquare'));
+	tiles.forEach(
+		tile => {
+		tile.addEventListener('click', toggleTile);
 		}
 	);
 }
 
-// Функция получения элементов по значению заданного атрибута
-Node.prototype.getElementsByAttributeValue = function(attribute, value){
-    var dom = this.all || this.getElementsByTagName("*");
-    var match = new Array();
-    for (var i in dom) {
-        if ((typeof dom[i]) === "object"){
-            if (dom[i].getAttribute(attribute) === value){
-                match.push(dom[i]);
-				console.log('++');
-            }
-        }
-    }
-    return match;
-};
+function uninit()
+{
+	const tiles = Array.from(document.querySelectorAll('.gridsquare'));
+	tiles.forEach(
+		tile => {
+		tile.removeEventListener('click', toggleTile);
+		}
+	);
+}
 
-// Добавление полей + присвоение им координат
-function addFields(x,y){ 
-//var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-//var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+// Create tiles, assign x, y coordinates to each
+function addTiles(x,y){ 
 var e = document.body;
-var p = document.getElementById('center_grid');
-var height =  (window.innerHeight - 800) / y;
-var width =  (window.innerWidth - 800) / x;
+var parent_container = document.getElementById('main_grid');
+var center_container = document.getElementById('center_grid');
+var height = (center_container.clientHeight - 2 * y * 3) / y;
+var width = height;
+if ((width * x + 2 * 3 * x) > parent_container.clientWidth)
+{
+	console.log('whoops');
+	width = (center_container.clientWidth - 2 * x * 3) / x;
+	height = width;
+}
 for(var i = 1; i <= y; i++)
 	{
 	var row = document.createElement("div"); 
@@ -60,46 +64,25 @@ for(var i = 1; i <= y; i++)
 		cell.dataset.y = i;
 		cell.className = "gridsquare"; 
 		cell.innerText = "";
-		cell.setAttribute("style", "min-height: "+ height +"px; max-width: "+ width + "px;")
+		cell.setAttribute("style", "height: "+ height +"px; width: "+ width + "px;")
 		row.appendChild(cell); 
 		} 
-	p.appendChild(row); 
+	center_container.appendChild(row); 
 	}	
 	init();
 }
-// Подсчет живых соседей (пока что прокручивает все клетки, исправить)
-/*
-function getNeighborsOne(field)
+
+// Count alive neighboring tiles
+function getNeighborsOne(tile)
 {
-	const AllFields = Array.from(document.querySelectorAll('.gridsquare'));
-	var count = 0;
-	if (field.classList.contains('alive'))
-	{
-		count--;
-	}
-	x = field.dataset.x;
-	y = field.dataset.y;
-	for(var i = 0; i < AllFields.length; i++)
-	{
-		if ((Math.abs(AllFields[i].dataset.x - x) <= 1) && (Math.abs(AllFields[i].dataset.y - y) <= 1) && (AllFields[i].classList.contains('alive'))) 
-		{
-			count++;
-		}			
-	}
-	return count;
-}
-*/
-function getNeighborsOne(field)
-{
-	// const AllFields = Array.from(document.querySelectorAll('.gridsquare'));
 	var count = 0;
 	var suspects = [];
-	if (field.classList.contains('alive'))
+	if (tile.classList.contains('alive'))
 	{
 		count--;
 	}
-	x = field.dataset.x;
-	y = field.dataset.y;
+	x = tile.dataset.x;
+	y = tile.dataset.y;
 	for (var i = -1; i<=1; i++)
 	{
 		var selector_x = "[data-x="+'"'+ (parseInt(x) + parseInt(i)) +'"'+"]";
@@ -122,70 +105,59 @@ function getNeighborsOne(field)
 	}
 	return count;
 }
-// подсчет живых соседей для всех
+// Alive neighboring tiles for each tile
 function getNeighbors()
 {
-	const AllFields = Array.from(document.querySelectorAll('.gridsquare'));
-	for (let field of AllFields) 
+	const Alltiles = Array.from(document.querySelectorAll('.gridsquare'));
+	for (let tile of Alltiles) 
 	{
-		field.innerText = getNeighborsOne(field);
+		tile.innerText = getNeighborsOne(tile);
 	}
 }
-// Следующий тик игры
+// Next tick
 function nextStep()
 {
-	const AllFields = Array.from(document.querySelectorAll('.gridsquare'));
+	const Alltiles = Array.from(document.querySelectorAll('.gridsquare'));
 	var ShouldBeAlive = [];
 	var ShouldBeDead = [];
-	for (let field of AllFields) 
+	for (let tile of Alltiles) 
 	{
-		n = getNeighborsOne(field);
-		if ((n == 3) && (!field.classList.contains('alive')))
+		n = getNeighborsOne(tile);
+		if ((n == 3) && (!tile.classList.contains('alive')))
 		{
-			ShouldBeAlive.push(field);
+			ShouldBeAlive.push(tile);
 		}
 		else if ((n > 3) || (n < 2))
 		{
-			ShouldBeDead.push(field);
+			ShouldBeDead.push(tile);
 		}
-		else if ((n == 3) || (n == 2) && (field.classList.contains('alive')))
+		else if ((n == 3) || (n == 2) && (tile.classList.contains('alive')))
 		{
-			ShouldBeAlive.push(field);
+			ShouldBeAlive.push(tile);
 		}			
 		else 
 		{
-			ShouldBeDead.push(field);
+			ShouldBeDead.push(tile);
 		}
 	}
-	for (let field of ShouldBeAlive) 
+	for (let tile of ShouldBeAlive) 
 	{
-		field.classList.add('alive');
+		tile.classList.add('alive');
 	}
-	for (let field of ShouldBeDead)
+	for (let tile of ShouldBeDead)
 	{
-		field.classList.remove('alive');
+		tile.classList.remove('alive');
 	}
 }
 
-function cleanFields()
+// Clear the tile container
+function deleteTiles()
 {
 	var parent = document.getElementById('center_grid');
 	parent.innerHTML = "";
 }
 
-/* function checktexbox(textbox)
-{
-	var n = textbox.value;
-	if ((n) && (!n == '') && (!isNaN(n)) && (n <= 10)) 
-	{
-		return true;
-	} 
-	else 
-	{
-		return false;
-	}
-} */
-
+// Validate input for textboxes
 function checktextboxes()
 {
 	var x_textbox = document.getElementById('input_x');
@@ -212,18 +184,17 @@ function checktextboxes()
 		x_textbox.classList.remove('valid');
 		x_textbox.classList.add('invalid');
 	}
-	else if ((new_x > 10) || (new_x < 2))
+	else if ((new_x > 50) || (new_x < 2))
 	{
 		x_flag = false;
 		x_textbox.value = null; 
-		x_textbox.placeholder = '2 to 10';
+		x_textbox.placeholder = '2 to 50';
 		x_textbox.classList.remove('valid');
 		x_textbox.classList.add('invalid');
 	}
 	else 
 	{
 		x_flag = true;
-		console.log('x_ok');
 		x_textbox.classList.remove('invalid');
 		x_textbox.classList.add('valid');
 	}
@@ -242,50 +213,54 @@ function checktextboxes()
 		y_textbox.classList.remove('valid');
 		y_textbox.classList.add('invalid');
 	}
-	else if ((new_y > 10) || (new_y < 2))
+	else if ((new_y > 50) || (new_y < 2))
 	{
 		y_flag = false;
 		y_textbox.value = null; 
-		y_textbox.placeholder = '2 to 10';
+		y_textbox.placeholder = '2 to 50';
 		y_textbox.classList.remove('valid');
 		y_textbox.classList.add('invalid');
 	}
 	else 
 	{
 		y_flag = true;
-		console.log('y_ok');
 		y_textbox.classList.remove('invalid');
 		y_textbox.classList.add('valid');
 	}
 	// check time
-	if (!new_ticktime) {
-		ticktime_flag = false;
-		ticktime_textbox.placeholder = 'Empty';
-		ticktime_textbox.classList.remove('valid');
-		ticktime_textbox.classList.add('invalid');
-	} 
-	else if (isNaN(new_ticktime))
-	{
-		ticktime_flag = false;
-		ticktime_textbox.value = null; 
-		ticktime_textbox.placeholder = 'Not a number';
-		ticktime_textbox.classList.remove('valid');
-		ticktime_textbox.classList.add('invalid');
-	}
-	else if ((new_ticktime > 10) || (new_ticktime < 0))
-	{
-		ticktime_flag = false;
-		ticktime_textbox.value = null; 
-		ticktime_textbox.placeholder = '2 to 10';
-		ticktime_textbox.classList.remove('valid');
-		ticktime_textbox.classList.add('invalid');
+	if (new_ticktime) {
+		// ticktime_flag = false;
+		// ticktime_textbox.placeholder = 'Empty';
+		// ticktime_textbox.classList.remove('valid');
+		// ticktime_textbox.classList.add('invalid');
+		if (isNaN(new_ticktime))
+		{
+			ticktime_flag = false;
+			ticktime_textbox.value = null; 
+			ticktime_textbox.placeholder = 'Not a number';
+			ticktime_textbox.classList.remove('valid');
+			ticktime_textbox.classList.add('invalid');
+		}
+		else if ((new_ticktime > 10000) || (new_ticktime < 1))
+		{
+			ticktime_flag = false;
+			ticktime_textbox.value = null; 
+			ticktime_textbox.placeholder = '0 to 10000';
+			ticktime_textbox.classList.remove('valid');
+			ticktime_textbox.classList.add('invalid');
+		}
+		else 
+		{
+			ticktime_flag = true;
+			customTickTime = true;
+			interval = ticktime_textbox.value;
+			ticktime_textbox.classList.remove('invalid');
+			ticktime_textbox.classList.add('valid');
+		}
 	}
 	else 
 	{
 		ticktime_flag = true;
-		console.log('ticktime_ok');
-		ticktime_textbox.classList.remove('invalid');
-		ticktime_textbox.classList.add('valid');
 	}
 	if ((x_flag) && (y_flag) && (ticktime_flag))
 	{
@@ -297,6 +272,16 @@ function checktextboxes()
 	}
 }
 
+function cleanTiles()
+{
+	const Alltiles = Array.from(document.querySelectorAll('.gridsquare'));
+	for (let tile of Alltiles)
+	{
+		tile.classList.remove('alive');
+	}
+}
+
+// Apply new settings
 function clearAdd()
 {
 	if (checktextboxes())
@@ -306,16 +291,45 @@ function clearAdd()
 		var y_textbox = document.getElementById('input_y');
 		var new_x = x_textbox.value;
 		var new_y = y_textbox.value;
-		cleanFields();
-		addFields(new_x, new_y);
-		modal.style.display = "none";
+		deleteTiles();
+		addTiles(new_x, new_y);
+		// modal.style.display = "none";
 	}
 }
 
+// randomly toggle tiles (change to be determined from settings, 0.5 now)
 function fillrandom()
 {
-	console.log('kek');
-	return 2;
+	cleanTiles();
+	const Alltiles = Array.from(document.querySelectorAll('.gridsquare'));
+	for (let tile of Alltiles)
+	{
+		var n = Math.random();
+		if (n > 1 - 0.5)
+		{
+			tile.classList.add('alive');
+		}
+	}
+}
+
+//  with "start" button clicked, begin infinite loop of nextStep() iterations (default interval = 1000 ms), also change play button to pause button.  
+function startSim(intervalId, interval)
+{
+	uninit();
+	var img_holder = document.getElementById('play_pause');
+	img_holder.innerHTML = '<img src="img/pause.png" class="image_off" height="80px"><img src="img/pause_hover.png" class="image_on" height="80px" onclick="stopSim()">';
+	refreshInterval = setInterval(function() {
+		nextStep(); 
+	}, interval);
+}	
+
+// with "stop" button clicked, break the infinite loop, change the button back
+function stopSim()
+{
+	init();
+	var img_holder = document.getElementById('play_pause');
+	clearInterval(refreshInterval);
+	img_holder.innerHTML = '<img src="img/play.png" class="image_off" height="80px" ><img src="img/play_hover.png" class="image_on" height="80px" onclick="startSim(refreshInterval, interval)" >';
 }
 
 

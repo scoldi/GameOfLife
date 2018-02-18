@@ -1,24 +1,24 @@
 body, html 
 {
-	height:100%;
+	height: 100%;
+	font-family: Arial;
 }
 
 body
 {
-	background: rgba(60,60,60,1);
+	background: #202020;
 	overflow: hidden;
 }
 
 #form
 {
-	height: 10%;
+	height: 80px;
 	width: 15%;
-	Background: #007BB8;
+	Background: #3c3c3c;
 	margin: 0 auto;
-	border: 10px solid #007BB8;
-	border-radius: 10px;
-	min-width: 200px;
-	min-height: 70px;
+	min-width: 300px;
+	border: 15px solid #3c3c3c;
+	border-radius: 5px;	
 }
 
 #wrapper 
@@ -33,22 +33,24 @@ body
 	display: grid;
 	align-items: center;
 	justify-content: center;
-	width: 100%;
-	display: grid;
-	align-items: center;
-	justify-content: center;
-	display: flex;
-	flex: 1;
 	display: inline-block;
+	width: 80%;
+}
+.row 
+{
+	vertical-align: middle;
 }
 .img_holder
 {
-	display: flex;
-	flex: 1;
 	display: inline-block;
-	flex-direction: column;
-	justify-content: center;
 	vertical-align: middle;
+	margin: 0 auto;
+}
+
+.img_holder img
+{
+	vertical-align: middle;
+	margin: 0 auto;
 }
 
 .image_off, .img_holder:hover .image_on{
@@ -66,32 +68,37 @@ body
 
 #center_grid
 {
-	Background: rgba(255,255,255,1);
-	max-width: 50%;
 	margin: 0 auto;
+	height: 75%;
 }
 #footer
 {
 	position: absolute;
 	width: 100%;
 	bottom: 0;
-	height: 10%;
-	Background: rgba(255,255,255,1);}
- 
-.row{
-
+	height: 15%;
 }
-
+ 
 .textbox
 {
 	font-size: 20px;
 	height: 40px;
-	width: 70%;
-	-moz-border-radius: 5px;
+	width: 35%;
 	border-radius: 5px;
-    border:solid 1px black;
+    border: solid 2px #c8c8c8;
 	margin: 10px;
-    padding:5px;
+    padding: 5px;
+}
+
+.textbox_left
+{
+	font-size: 20px;
+	height: 40px;
+	width: 90px;
+	border-radius: 5px;
+    border: solid 2px #c8c8c8;
+	margin: 10px;
+    padding: 5px;
 }
 
 .button
@@ -101,10 +108,10 @@ body
 	width: 70%;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-    border:solid 2px black;
+    border: solid 2px #c8c8c8;
 	margin: 10px;
     padding:5px;
-	background: rgba(112,128,144, 1)
+	background: #c8c8c8;
 }
 .button:hover
 {
@@ -121,16 +128,18 @@ body
 	border-width: 1px;
 	height: 50px;
 	display: inline-grid;
-	border: 2px solid black;
-	border-radius: 2px;
+	border: 2px solid #3c3c3c;
+	border-radius: 4px;
 	margin: 1px;
+	background: #3c3c3c;
 }
 
 .alive{
-	background: rgba(200,200,200,1);
+	background: #c8c8c8;
+	border: 2px solid #c8c8c8;
+	transition: all .1s ease;
 }
 
-/* The Modal (background) */
 .modal {
     display: none;
     position: fixed;
@@ -141,20 +150,23 @@ body
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.2); /* Black w/ opacity */
+    background-color: rgba(0,0,0,0.4); 
 }
 
-/* Modal Content */
 .modal-content {
-    background-color: #fefefe;
+    background-color: #404040;
+	color: #c8c8c8;
     margin: auto;
     padding: 20px;
-    border: 1px solid #888;
-	border-radius: 10px;
+    border: 2px solid #404040;
+	border-radius: 5px;
     width: 15%;
 }
 
-/* The Close Button */
+#info-content {
+	width: 500px;
+}
+
 .close {
     color: #aaaaaa;
     float: right;
@@ -172,10 +184,5 @@ body
 
 .invalid
 {
-	background-color: rgba(255, 0, 0, 0.35)
-}
-
-.valid
-{
-	background-color: rgba(0, 255, 0, 0.35)
+	background-color: rgba(255, 0, 0, 0.4);
 }
