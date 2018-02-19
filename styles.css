@@ -156,15 +156,20 @@ body
 .modal-content {
     background-color: #404040;
 	color: #c8c8c8;
-    margin: auto;
+	margin: auto;
     padding: 20px;
     border: 2px solid #404040;
 	border-radius: 5px;
-    width: 15%;
+	width: 30%;
 }
 
-#info-content {
-	width: 500px;
+#info-content p,ul {
+	text-align: left;
+}
+
+.modalText
+{
+	
 }
 
 .close {

@@ -1,6 +1,9 @@
 /*
 TO DO LIST  
 1. Change size of everything on window resize (without interrupting anything);
+2. Interrupt simulation on setting modal opening
+3. Interrupt simulation when nothing changes for a few ticks
+4. Add a counter for alive cells
 */
 var out_flag = false;
 var refreshInterval;
