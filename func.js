@@ -1,16 +1,27 @@
 /*
 TO DO LIST  
 1. Change size of everything on window resize (without interrupting anything);
-2. Interrupt simulation on setting modal opening
-3. Interrupt simulation when nothing changes for a few ticks
-4. Add a counter for alive cells
+2. Interrupt (pause) simulation on settings modal opening
+3. Interrupt simulation when nothing changes for a few ticks (kinda done, needs improvement, use ShouldBeAlive/Dead arrays(?))
 */
 var out_flag = false;
 var refreshInterval;
 var interval = 1000;
-var customTickTime = false;
+var customField = false;
+var customInterval = false;
+var counter = 0;
+var counterShown = false; 
+var counterHistory = new Array;
+var nothingChangesFor = 5; 
+var param;
 
-// Dead tile => alive
+function startSimPage()
+{
+	addTiles(10, 10);
+	initCounter();
+}
+
+// Dead tile => alive, alive tile => dead
 function toggleTile(event)
 {
 	const tileClicked = this;
@@ -21,9 +32,11 @@ function toggleTile(event)
 	else {
     tileClicked.classList.add('alive');
 	}
+	initCounter();
+	updateCounter();
 }
 
-// Allow manual on/off
+// Allow manual on/off;
 function init(){
 	const tiles = Array.from(document.querySelectorAll('.gridsquare'));
 	tiles.forEach(
@@ -33,6 +46,7 @@ function init(){
 	);
 }
 
+// disable manual on/off
 function uninit()
 {
 	const tiles = Array.from(document.querySelectorAll('.gridsquare'));
@@ -52,7 +66,7 @@ var height = (center_container.clientHeight - 2 * y * 3) / y;
 var width = height;
 if ((width * x + 2 * 3 * x) > parent_container.clientWidth)
 {
-	console.log('whoops');
+	// console.log('width overflow');
 	width = (center_container.clientWidth - 2 * x * 3) / x;
 	height = width;
 }
@@ -151,6 +165,16 @@ function nextStep()
 	{
 		tile.classList.remove('alive');
 	}
+	updateCounter();
+	counterHistory.push(counter);
+	// console.log(counterHistory);
+	// console.log(sameLastTurns(5));
+	if (sameLastTurns(nothingChangesFor) || (counter == 0))
+	{
+		stopSim();
+		uninitCounter();
+		inform('nothing changes');
+	}
 }
 
 // Clear the tile container
@@ -161,117 +185,117 @@ function deleteTiles()
 }
 
 // Validate input for textboxes
-function checktextboxes()
+function validateTextBoxes()
 {
 	var x_textbox = document.getElementById('input_x');
 	var y_textbox = document.getElementById('input_y');
-	var ticktime_textbox = document.getElementById('input_ticktime');
 	var new_x = x_textbox.value;
 	var new_y = y_textbox.value;
-	var new_ticktime = ticktime_textbox.value;
 	var x_flag = false;
 	var y_flag = false;
-	var ticktime_flag = false;
 	// check x
-	if (!new_x) {
-		x_flag = false;
-		x_textbox.placeholder = 'Empty';
-		x_textbox.classList.remove('valid');
-		x_textbox.classList.add('invalid');
-	} 
-	else if (isNaN(new_x))
+	if ((new_x) || (new_y))
 	{
-		x_flag = false;
-		x_textbox.value = null; 
-		x_textbox.placeholder = 'Not a number';
-		x_textbox.classList.remove('valid');
-		x_textbox.classList.add('invalid');
-	}
-	else if ((new_x > 50) || (new_x < 2))
-	{
-		x_flag = false;
-		x_textbox.value = null; 
-		x_textbox.placeholder = '2 to 50';
-		x_textbox.classList.remove('valid');
-		x_textbox.classList.add('invalid');
-	}
-	else 
-	{
-		x_flag = true;
-		x_textbox.classList.remove('invalid');
-		x_textbox.classList.add('valid');
-	}
-	// check y
-	if (!new_y) {
-		y_flag = false;
-		y_textbox.placeholder = 'Empty';
-		y_textbox.classList.remove('valid');
-		y_textbox.classList.add('invalid');
-	} 
-	else if (isNaN(new_y))
-	{
-		y_flag = false;
-		y_textbox.value = null; 
-		y_textbox.placeholder = 'Not a number';
-		y_textbox.classList.remove('valid');
-		y_textbox.classList.add('invalid');
-	}
-	else if ((new_y > 50) || (new_y < 2))
-	{
-		y_flag = false;
-		y_textbox.value = null; 
-		y_textbox.placeholder = '2 to 50';
-		y_textbox.classList.remove('valid');
-		y_textbox.classList.add('invalid');
-	}
-	else 
-	{
-		y_flag = true;
-		y_textbox.classList.remove('invalid');
-		y_textbox.classList.add('valid');
-	}
-	// check time
-	if (new_ticktime) {
-		// ticktime_flag = false;
-		// ticktime_textbox.placeholder = 'Empty';
-		// ticktime_textbox.classList.remove('valid');
-		// ticktime_textbox.classList.add('invalid');
-		if (isNaN(new_ticktime))
+		if (!new_x) {
+			x_flag = false;
+			x_textbox.placeholder = 'Empty';
+			x_textbox.classList.remove('valid');
+			x_textbox.classList.add('invalid');
+		} 
+		else if (isNaN(new_x))
 		{
-			ticktime_flag = false;
-			ticktime_textbox.value = null; 
-			ticktime_textbox.placeholder = 'Not a number';
-			ticktime_textbox.classList.remove('valid');
-			ticktime_textbox.classList.add('invalid');
+			x_flag = false;
+			x_textbox.value = null; 
+			x_textbox.placeholder = 'Not a number';
+			x_textbox.classList.remove('valid');
+			x_textbox.classList.add('invalid');
 		}
-		else if ((new_ticktime > 10000) || (new_ticktime < 1))
+		else if ((new_x > 50) || (new_x < 2))
 		{
-			ticktime_flag = false;
-			ticktime_textbox.value = null; 
-			ticktime_textbox.placeholder = '0 to 10000';
-			ticktime_textbox.classList.remove('valid');
-			ticktime_textbox.classList.add('invalid');
+			x_flag = false;
+			x_textbox.value = null; 
+			x_textbox.placeholder = '2 to 50';
+			x_textbox.classList.remove('valid');
+			x_textbox.classList.add('invalid');
 		}
 		else 
 		{
-			ticktime_flag = true;
-			customTickTime = true;
-			interval = ticktime_textbox.value;
-			ticktime_textbox.classList.remove('invalid');
-			ticktime_textbox.classList.add('valid');
+			x_flag = true;
+			x_textbox.classList.remove('invalid');
+			x_textbox.classList.add('valid');
+		}
+		// check y
+		if (!new_y) {
+			y_flag = false;
+			y_textbox.placeholder = 'Empty';
+			y_textbox.classList.remove('valid');
+			y_textbox.classList.add('invalid');
+		} 
+		else if (isNaN(new_y))
+		{
+			y_flag = false;
+			y_textbox.value = null; 
+			y_textbox.placeholder = 'Not a number';
+			y_textbox.classList.remove('valid');
+			y_textbox.classList.add('invalid');
+		}
+		else if ((new_y > 50) || (new_y < 2))
+		{
+			y_flag = false;
+			y_textbox.value = null; 
+			y_textbox.placeholder = '2 to 50';
+			y_textbox.classList.remove('valid');
+			y_textbox.classList.add('invalid');
+		}
+		else 
+		{
+			y_flag = true;
+			y_textbox.classList.remove('invalid');
+			y_textbox.classList.add('valid');
+		}
+	}
+	if ((x_flag) && (y_flag))
+	{
+		customField = true;
+	}
+	else 
+	{
+		customField = false;
+	}
+}
+
+function validateInterval()
+{
+	var interval_textbox = document.getElementById('input_interval');
+	var new_interval = interval_textbox.value;
+	if (new_interval) {
+		if (isNaN(new_interval))
+		{
+			interval_textbox.value = null; 
+			interval_textbox.placeholder = 'Not a number';
+			interval_textbox.classList.remove('valid');
+			interval_textbox.classList.add('invalid');
+			customInterval = false;
+		}
+		else if ((new_interval > 10000) || (new_interval < 1))
+		{
+			interval_textbox.value = null; 
+			interval_textbox.placeholder = '0 to 10000';
+			interval_textbox.classList.remove('valid');
+			interval_textbox.classList.add('invalid');
+			customInterval = false;
+		}
+		else 
+		{
+			customInterval = true;
+			interval = interval_textbox.value;
+			interval_textbox.classList.remove('invalid');
+			interval_textbox.classList.add('valid');
 		}
 	}
 	else 
 	{
-		ticktime_flag = true;
-	}
-	if ((x_flag) && (y_flag) && (ticktime_flag))
-	{
-		return true;
-	}
-	else 
-	{
-		return false;
+		customInterval = false;
 	}
 }
 
@@ -281,23 +305,37 @@ function cleanTiles()
 	for (let tile of Alltiles)
 	{
 		tile.classList.remove('alive');
+		counter = 0;
 	}
 }
 
 // Apply new settings
-function clearAdd()
+function applySettings()
 {
-	if (checktextboxes())
+	var modal = document.getElementById('modalSettings');	
+	validateTextBoxes();
+	validateInterval();
+	if (customInterval)
 	{
-		var modal = document.getElementById('modalSettings');
-		var x_textbox = document.getElementById('input_x');
-		var y_textbox = document.getElementById('input_y');
-		var new_x = x_textbox.value;
-		var new_y = y_textbox.value;
+		interval = document.getElementById('input_interval').value;
+		// modal.style.display = "none";
+		//console.log('interval changed');
+		//console.log(interval);
+	}
+	if (customField)
+	{
+		var new_x = document.getElementById('input_x').value;
+		var new_y = document.getElementById('input_y').value;
 		deleteTiles();
 		addTiles(new_x, new_y);
-		// modal.style.display = "none";
+		//console.log('field changed');
 	}
+	/*
+	if ((customField) && (customInterval))
+	{
+		modal.style.display = "none";
+	}
+	*/
 }
 
 // randomly toggle tiles (change to be determined from settings, 0.5 now)
@@ -313,12 +351,16 @@ function fillrandom()
 			tile.classList.add('alive');
 		}
 	}
+	initCounter();
+	updateCounter();
 }
 
 //  with "start" button clicked, begin infinite loop of nextStep() iterations (default interval = 1000 ms), also change play button to pause button.  
 function startSim(intervalId, interval)
 {
+	nextStep();
 	uninit();
+	initCounter();
 	var img_holder = document.getElementById('play_pause');
 	img_holder.innerHTML = '<img src="img/pause.png" class="image_off" height="80px"><img src="img/pause_hover.png" class="image_on" height="80px" onclick="stopSim()">';
 	refreshInterval = setInterval(function() {
@@ -330,9 +372,61 @@ function startSim(intervalId, interval)
 function stopSim()
 {
 	init();
+	// uninitCounter();
 	var img_holder = document.getElementById('play_pause');
 	clearInterval(refreshInterval);
 	img_holder.innerHTML = '<img src="img/play.png" class="image_off" height="80px" ><img src="img/play_hover.png" class="image_on" height="80px" onclick="startSim(refreshInterval, interval)" >';
 }
 
+function initCounter()
+{
+	document.getElementById('counterspan').innerHTML = counter;
+	document.getElementById('textcounter').innerHTML = "Currently alive: ";
+}
 
+function updateCounter()
+{
+	counter = 0;
+	const Alltiles = Array.from(document.querySelectorAll('.gridsquare'));
+	for (let tile of Alltiles)
+	{
+		if (tile.classList.contains('alive'))
+		{
+			counter++;
+		}
+	}
+	// console.log(counter);
+	document.getElementById('counterspan').innerHTML = counter;
+}
+
+function uninitCounter()
+{
+	document.getElementById('counterspan').innerHTML = '';
+	document.getElementById('textcounter').innerHTML = ''; 
+}
+
+function inform(param)
+{
+	switch(param)
+	{
+		case 'nothing changes':
+			document.getElementById('counterspan').innerHTML = '';
+			document.getElementById('textcounter').innerHTML = 'Nothing new seems to happen. Stopped'; 
+			break;
+		default: 
+			break;
+	}
+}
+
+function sameLastTurns(x)
+{
+	var lastCounters = counterHistory.slice(Math.max(counterHistory.length - x, 1));
+	if ((lastCounters.length == x) && (lastCounters.every(x => x == lastCounters[0])))
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
+}

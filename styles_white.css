@@ -6,7 +6,7 @@ body, html
 
 body
 {
-	background: #202020;
+	background: #efefef;
 	overflow: hidden;
 }
 
@@ -14,12 +14,12 @@ body
 {
 	height: 80px;
 	width: 15%;
-	Background: #3c3c3c;
+	Background: #02577a;
 	margin: 0 auto;
 	min-width: 300px;
-	border: 15px solid #3c3c3c;
+	border: 15px solid #02577a;
 	border-radius: 5px;	
-	box-shadow: 0 0 40px #3c3c3c;
+	box-shadow: 0 0 40px #02577a;
 }
 
 #wrapper 
@@ -125,21 +125,19 @@ body
 }
 .gridsquare{
 	width: 50px;
-	border-style: solid;
-	border-width: 1px;
 	height: 50px;
 	display: inline-grid;
-	border: 2px solid #3c3c3c;
-	border-radius: 4px;
 	margin: 1px;
-	background: #3c3c3c;
+	background: #a7adba;
+	border: 2px solid #a7adba;
+	border-radius: 4px;
 }
 
 .alive{
-	background: #c8c8c8;
-	border: 2px solid #c8c8c8;
 	transition: all .1s ease;
-	box-shadow: 0 0 10px #c8c8c8;
+	background: #02577a;
+	border: 2px solid #02577a;
+	box-shadow: 0 0 10px #02577a;
 }
 
 .modal {
@@ -196,7 +194,7 @@ body
 
 #counter span
 {
-	color: #c8c8c8; 
+	color: #02577a; 
 	font-size: 1.5em;
 }
 
@@ -212,7 +210,7 @@ body
     border: 2px solid black;
 	border-radius: 3px;
     padding: 10px 24px; 
-    cursor: pointer;
+    cursor: pointer; 
     float: left; 
 	outline: 0;
 }
@@ -227,17 +225,18 @@ body
     display: table;
 }
 
-#white_button:hover {
-    color: #02577a;
-	background: #efefef;
+#dark_button:hover {
+
+	background: #c8c8c8; 
+	color: #101010;
 }
 
 #white_button
 {
 	font-size: 1em;
 	font-weight: bold;
-	background: #02577a;
-	color: #efefef;
+	color: #02577a;
+	background: #efefef;
 }
 
 #dark_button
